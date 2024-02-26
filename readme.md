@@ -1,6 +1,6 @@
 # PtWinOwnScr: An Overview
 
-PtWinOwnScr is a sandbox designed for manipulating windows and screens, specifically tailored for Windows 10 and later versions. It also includes a minimal "shell" for user interaction. This is an experimental project and is not intended for production use.
+PtWinOwnScr is a sandbox designed for manipulating windows and screens, specifically tailored for Windows 10 and later versions. It also includes a minimal "shell" for user interaction. This is an experimental project, primarily a study in the use of user32 and similar libraries, and is not intended for production use.
 
 ## Important Notice
 
