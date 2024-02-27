@@ -1,16 +1,39 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace PtWinOwnScr
 {
     public partial class Form1 : Form
     {
+        string keyName = @"HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\Wallpapers";
+        string valueName = "BackgroundHistoryPath0";
+
         public Form1()
         {
             InitializeComponent();
-            
+
+            try
+            {
+                // Get the path of the image from the registry
+                var imagePath = (string)Registry.GetValue(keyName, valueName, null);
+
+                if (string.IsNullOrEmpty(imagePath)) return;
+                // Set the background image of the form
+                BackgroundImage = Image.FromFile(imagePath);
+                BackgroundImageLayout = ImageLayout.Stretch;
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions here
+                MessageBox.Show("An error occurred: " + ex.Message);
+            }
+
+            updateTime();
         }
 
         private const int GWL_STYLE = -16;
@@ -32,6 +55,15 @@ namespace PtWinOwnScr
         private Process _curProcess;
 
 
+        private async void updateTime()
+        {
+            while (true)
+            {
+                label1.Text = DateTime.Now.ToString();
+                await Task.Delay(1000);
+            }
+        }
+
         private void button1_Click(object sender, EventArgs e)
         {
             applyMod("C:\\Program Files\\Notepad++\\notepad++.exe");
@@ -48,11 +80,11 @@ namespace PtWinOwnScr
                 // Get the handle of Notepad's main window
                 IntPtr appWin = _curProcess.MainWindowHandle;
                 // Set Notepad's parent window to be this form's handle
-                SetParent(appWin, this.Handle);
+                SetParent(appWin, Handle);
                 // Set Notepad's style to be visible and remove the title bar
                 //SetWindowLong(appWin, GWL_STYLE, WS_VISIBLE | WS_POPUP);
                 // Move Notepad's window to the center of this form's client area
-                MoveWindow(appWin, 0, 0, this.Width, this.Height, false);
+                MoveWindow(appWin, 0, 0, Width, Height, false);
             }
             catch (Exception ex)
             {
@@ -65,11 +97,11 @@ namespace PtWinOwnScr
             try
             {
                 // Set the window's parent window to be this form's handle
-                SetParent(appWin, this.Handle);
+                SetParent(appWin, Handle);
                 // Set the window's style to be visible and remove the title bar
                 //SetWindowLong(appWin, GWL_STYLE, WS_VISIBLE | WS_POPUP);
                 // Move the window to the center of this form's client area
-                MoveWindow(appWin, 0, 0, this.Width, this.Height, false);
+                MoveWindow(appWin, 0, 0, Width, Height, false);
             }
             catch (Exception ex)
             {
@@ -85,21 +117,21 @@ namespace PtWinOwnScr
             //}
         }
 
-        Boolean isFullScreen = false;
+        Boolean isFullScreen;
 
         private void Form1_DoubleClick(object sender, EventArgs e)
         {
             if (isFullScreen)
             {
-                this.TopMost = false;
-                this.FormBorderStyle = FormBorderStyle.Sizable;
-                this.WindowState = FormWindowState.Normal;
+                TopMost = false;
+                FormBorderStyle = FormBorderStyle.Sizable;
+                WindowState = FormWindowState.Normal;
             }
             else
             {
-                this.TopMost = true;
-                this.FormBorderStyle = FormBorderStyle.None;
-                this.WindowState = FormWindowState.Maximized;
+                TopMost = true;
+                FormBorderStyle = FormBorderStyle.None;
+                WindowState = FormWindowState.Maximized;
             }
             isFullScreen = !isFullScreen;
         }
@@ -144,7 +176,7 @@ namespace PtWinOwnScr
     {
         public static string ShowDialog(string text, string caption)
         {
-            Form prompt = new Form()
+            Form prompt = new Form
             {
                 Width = 500,
                 Height = 150,
@@ -153,9 +185,9 @@ namespace PtWinOwnScr
                 StartPosition = FormStartPosition.CenterScreen,
                 TopMost = true
             };
-            Label textLabel = new Label() { Left = 50, Top = 20, Text = text };
-            TextBox textBox = new TextBox() { Left = 50, Top = 50, Width = 400 };
-            Button confirmation = new Button() { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
+            Label textLabel = new Label { Left = 50, Top = 20, Text = text };
+            TextBox textBox = new TextBox { Left = 50, Top = 50, Width = 400 };
+            Button confirmation = new Button { Text = "Ok", Left = 350, Width = 100, Top = 70, DialogResult = DialogResult.OK };
             confirmation.Click += (sender, e) => { prompt.Close(); };
             prompt.Controls.Add(textBox);
             prompt.Controls.Add(confirmation);
